@@ -7,9 +7,20 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def create_table_from_dataframe(table_name: str, df: pd.DataFrame):
-    # Generar SQL dinámico desde el DataFrame
-    columns = ", ".join([f'"{col}" text' for col in df.columns])
-    query = f'CREATE TABLE IF NOT EXISTS "{table_name}" (id serial primary key, {columns});'
+    # Si ya existe una columna 'id' en el dataframe, no la volvemos a crear
+    columns = []
+    for col in df.columns:
+        # Evita duplicar 'id' si ya existe
+        if col.lower() == "id":
+            columns.append(f'"{col}" text')  
+        else:
+            columns.append(f'"{col}" text')
+    
+    # Generar SQL dinámico
+    if "id" in df.columns:
+        query = f'CREATE TABLE IF NOT EXISTS "{table_name}" ({", ".join(columns)});'
+    else:
+        query = f'CREATE TABLE IF NOT EXISTS "{table_name}" (id serial primary key, {", ".join(columns)});'
 
     try:
         response = supabase.rpc("execute_sql", {"query": query}).execute()
@@ -17,6 +28,7 @@ def create_table_from_dataframe(table_name: str, df: pd.DataFrame):
         print(response)
     except Exception as e:
         print(f"❌ Error creando tabla '{table_name}':", e)
+
 
 def insert_dataframe(table_name: str, df: pd.DataFrame):
     try:
