@@ -13,17 +13,14 @@ from utils.db_utils import create_table_from_dataframe, insert_dataframe
 # Inicialización de la Aplicación
 app = FastAPI(title="CSV → Supabase Data Cleaner API")
 
-# Variables globales
-DATAFRAME_CACHE: pd.DataFrame = None
-TABLE_NAME: str = None
-last_cleaned_df: pd.DataFrame = None
-
 # ==============================================================================
-# 🌍 Configuración CORS
+# 🌍 Configuración CORS (actualizada)
 # ==============================================================================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://avance23front-nez9.vercel.app",  # 🌐 dominio del frontend (Vercel)
+        "http://localhost:5173",  # ⚙️ desarrollo local (Vite)
         "http://localhost:8080",
         "http://127.0.0.1:8080",
     ],
@@ -32,6 +29,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Variables globales
+DATAFRAME_CACHE: pd.DataFrame = None
+TABLE_NAME: str = None
+last_cleaned_df: pd.DataFrame = None
 # ==============================================================================
 # ⚙️ Funciones Auxiliares
 # ==============================================================================
